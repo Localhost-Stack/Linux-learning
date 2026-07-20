@@ -108,4 +108,4 @@ secrets.yml är Säker att committa till git eftersom att den är krypterad på 
 (till skillnad från tex .gitignore som bara döljer filen lokalt)
 
 ## Felsökning
-"Could not be made into a dictionary" = ogi YAML-syntax i vault-filen, oftast sakande kolon+mellanslag mellan nyckel och värde
+"Could not be made into a dictionary" = ogiltigt YAML-syntax i vault-filen, oftast sakande kolon+mellanslag mellan nyckel och värde
