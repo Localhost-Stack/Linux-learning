@@ -25,3 +25,38 @@ ansible fedora_laptop -i inventory.ini -m ping
 Detta bekräftar hela kjedan fungerar:
 controle node (ARCH) -> SSH-nyckel -> managed node (Fedora) -> Python
 
+
+##Playbooks
+En playbook beskriver ÖNSKAT TILLSTÅND i YAML, inte steg för steg kommandon.
+Ansible räknar ut vad som krävs för att uppnå det tillståndet (idempotens)
+
+Exempel: install-podman.yml
+---
+- name: Install Podman on Fedora Laptop
+  hosts: fedora_laptop
+  become: true
+  tasks:
+    - name: Install podman package
+      dnf:
+        name: podman
+        state: present
+
+
+
+---
+Nyckelord:
+- hosts: vilken grupp från inventory.ini som ska köras mot
+- become: true = kör med sudo-rättigheter
+- dnf-modulen = pakethanterar för Fedora/RHEL (apt på Debian/Ubuntu)
+- state: present = "detta ska finnas intesallerat" (absent = ska inte finnas, latest)
+
+
+## Köra en playbook
+ansible-playbok -i inventory.ini install-podman.yml --ask-become-pass
+--syntax-check = validera YAML-syntax INNAN man kör påriktigt
+
+
+## Resultat
+changed=1, failed=0 -> Podman installerades korrekt på Fedora-laptopen
+Kör man samma playbook igen: changed=0, eftersom paketet redan finns (idempotens)
+
