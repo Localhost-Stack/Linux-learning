@@ -60,3 +60,25 @@ ansible-playbok -i inventory.ini install-podman.yml --ask-become-pass
 changed=1, failed=0 -> Podman installerades korrekt på Fedora-laptopen
 Kör man samma playbook igen: changed=0, eftersom paketet redan finns (idempotens)
 
+
+
+##Felsökning: Container + UFW + portmappning (djupyk)
+Symptom: curl fastnat på "Trying...." även efter att en UFW INPUT-regel
+för 8080/tcp lades till. Container kör, lyssnar korrekt (ss -tlnp visar 0.0.0.0:8080)
+
+Root cause: Podmans portmappning (8080:80) gör DNAT - traffik omdirigeras från värdens 8080
+till containers interna IP (tex 10.88.0.2:80).
+Det räknas som Forwards traffik, inte direkt input till värden.
+
+UFW:s "ufw_allow 8080/tcp" lägger bara till en regel i INPUT kjedan,
+Forwards-kedjans policy är "drop" som standard - och Podmans virituella interface (podman0)
+hade ingen "tillåtande" regel där.
+
+Fix (Vi behövde BÅDA riktningarna):
+sudo ufw route allow in on podman 0
+sudo ufw route allow out on podman0
+
+## Lärdom
+Container-Nätverk med brandvägg har två seperata lager att tänka på - INPUT (traffik till värden) och Forward
+Traffik som vidarebefodras vidare, tex via DNAT till en container). Att bara öppna porten i input
+räcker inte om trafiken faktiskt vidarebefodras.
