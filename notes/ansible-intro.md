@@ -82,3 +82,30 @@ sudo ufw route allow out on podman0
 Container-Nätverk med brandvägg har två seperata lager att tänka på - INPUT (traffik till värden) och Forward
 Traffik som vidarebefodras vidare, tex via DNAT till en container). Att bara öppna porten i input
 räcker inte om trafiken faktiskt vidarebefodras.
+
+
+## Ansible Vault
+Krypterar känsliga värden (lösenord, API-nycklar) så de kan sparas säkert i git, istället för klartext eller manuell inmatning varje gång.
+
+##Skapa en krypterade fil:
+ansible-vault create secrets.yml
+-> ber om Vault-lösenfras (nyckeln som låser upp filen inte samma som lösenordet man lagarar inuti)
+
+Innehåll (VIKTIGT: melanslag efter kolon, annars ogiltigt YAML):
+ansible_become_pass: (lösenord)
+
+Visa innehåll (dekrypterar tillfälligt i terminalen):
+ansible-vault view secret.yml
+
+Redigera:
+ansible-vault edit secrets.yml
+
+
+##Köra playbook med vailt-fil:
+ansible-playbook -i invento.ini install-podman.-yml --extras-vars "@secrets.yml" --ask-vault-pass
+
+secrets.yml är Säker att committa till git eftersom att den är krypterad på disk det är hela poängen med Vault
+(till skillnad från tex .gitignore som bara döljer filen lokalt)
+
+## Felsökning
+"Could not be made into a dictionary" = ogi YAML-syntax i vault-filen, oftast sakande kolon+mellanslag mellan nyckel och värde
