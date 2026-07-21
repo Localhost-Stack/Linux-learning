@@ -109,3 +109,47 @@ secrets.yml är Säker att committa till git eftersom att den är krypterad på 
 
 ## Felsökning
 "Could not be made into a dictionary" = ogiltigt YAML-syntax i vault-filen, oftast sakande kolon+mellanslag mellan nyckel och värde
+
+## Roles-strukturera playbooks
+En role paketerar tasks + variabler i en återanvändbar mappstruktur,
+Istället för att ha allt i en enda platt playbook-fil.
+
+Skapa en role:
+Ansible-galaxy init roles/podman_nginx
+
+Viktiga mappar:
+-task/main.yml >> själva logiken (vad som ska göras)
+-defaults/main.yml >> standardvariabler (lätta att skriva över)
+
+
+tasks/main.yml innehåller ingen hosts/become - bara task-listan:
+---
+
+- name: Run Nginx container
+containers.podman.podman:_container:
+ name: "{{ container_name }}"
+    image: "{{ container_image }}"
+    state: started
+    ports:
+      - "{{ container_host_port }}:{{ container_internal_port }}"
+
+    Playbooken som ANVÄNDER rollen blir väldigt kort:
+    ---
+    - name: Deploy nginx via role
+    hosts:fedora_laptop
+    become: true
+    roles:
+    - podman_nginx
+
+    ## Felsökning:
+    YAML-indentring vid klistring
+    Terminalens klistra-in funktion kan ibland ta bort inledande mellanslag,
+    vilket förstör YAML-strukturen (identering = hierarki i YAML).
+    Lösning: skriv manuellt i nvim/vim och använd printf med citerade rader för att skydda
+    mellanslagen vid skript-baserad filskapelse
+    ## Resultat
+    Körde om samma logit som run-container.yml, men nu via role. 
+    Output: ok=2, changed=0 -> bekräftar IDEMPOTENS: containern fanns
+redan i rätt tillstånd, så Ansible gjorde ingenting (som förväntat).
+
+
