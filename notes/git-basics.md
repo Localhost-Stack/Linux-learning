@@ -6,7 +6,7 @@
 - SSH-nyckel: privat stannar lokalt, publikt delas
 
 
-## Branchingin
+## Branching
 En branch är en pararell tidslinje i git historiken. Man kan expremintera fritt på en branch
 utan att påverka master.
 
