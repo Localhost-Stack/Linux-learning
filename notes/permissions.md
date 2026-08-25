@@ -12,7 +12,7 @@ Och tre rättigher per nivå:
 - **x** (execute) - köra som program. eller gå in i en mapp
 
 
-## Läsa rättigher
+## Läsa rättigheter
 'ls -l' visar t.ex 'rwxr-xr--'
 - Position 1: filtyp ('-' = fil. 'd' = mapp)
 - Position 2-4: owner (rwx)
